@@ -1,0 +1,12 @@
+[
+    {
+        "id": 1,
+        "podcast_id": 1,
+        "text": "comment 1 to 1 podcast"
+    },
+    {
+        "id": 2,
+        "podcast_id": 1,
+        "text": "Хорош"
+    }
+]
