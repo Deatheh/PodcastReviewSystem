@@ -1,23 +1,46 @@
-from typing import List, Dict
-from podcasts import find_podcast_by_id
+"""Модель отзыва."""
+from typing import Dict, Any
 
 
-def add_review(reviews: List[Dict], podcasts: List[Dict],
-               podcast_id: int, text: str) -> bool:
-    podcast = find_podcast_by_id(podcasts, podcast_id)
-    if not podcast:
-        print(f"Ошибка: подкаст с ID {podcast_id} не найден.")
-        return False
-    new_id = max((r["id"] for r in reviews), default=0) + 1
-    reviews.append({
-        "id": new_id,
-        "podcast_id": podcast_id,
-        "text": text
-    })
-    print(f"Отзыв успешно добавлен к подкасту '{podcast['title']}'.")
-    return True
+class Review:
+    """Отзыв пользователя о подкасте."""
 
+    def __init__(
+        self,
+        review_id: int,
+        podcast_id: int,
+        user_id: int,
+        text: str,
+    ) -> None:
+        self.review_id: int = review_id
+        self.podcast_id: int = podcast_id
+        self.user_id: int = user_id
+        self.text: str = text
 
-def get_reviews_for_podcast(reviews: List[Dict],
-                            podcast_id: int) -> List[Dict]:
-    return list(filter(lambda r: r["podcast_id"] == podcast_id, reviews))
+    @classmethod
+    def from_data(cls, data: Dict[str, Any]) -> "Review":
+        """Создать объект Review из словаря."""
+        return cls(
+            review_id=data["review_id"],
+            podcast_id=data["podcast_id"],
+            user_id=data["user_id"],
+            text=data["text"],
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразовать объект в словарь для JSON."""
+        return {
+            "review_id": self.review_id,
+            "podcast_id": self.podcast_id,
+            "user_id": self.user_id,
+            "text": self.text,
+        }
+
+    def __str__(self) -> str:
+        return (
+            f"Review(id={self.review_id}, podcast_id={self.podcast_id}, "
+            f"user_id={self.user_id}, text='{self.text}')"
+        )
+
+    def __repr__(self) -> str:
+        return self.__str__()

@@ -1,25 +1,52 @@
-from typing import List, Dict, Optional
+"""Модель подкаста."""
+from typing import Dict, Any, Optional
 
 
-def add_podcast(podcasts: List[Dict], title: str) -> bool:
-    for p in podcasts:
-        if p["title"].lower() == title.lower():
-            print(f"Ошибка: подкаст с названием '{title}' уже существует!")
+class Podcast:
+    """Подкаст, доступный для прослушивания и оценки."""
+
+    def __init__(
+        self,
+        podcast_id: int,
+        title: str,
+        author_id: Optional[int] = None,
+    ) -> None:
+        self.podcast_id: int = podcast_id
+        self.title: str = title
+        self.author_id: Optional[int] = author_id
+
+    @classmethod
+    def from_data(cls, data: Dict[str, Any]) -> "Podcast":
+        """Создать объект Podcast из словаря (например, из JSON)."""
+        return cls(
+            podcast_id=data["podcast_id"],
+            title=data["title"],
+            author_id=data.get("author_id"),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразовать объект в словарь для сохранения в JSON."""
+        return {
+            "podcast_id": self.podcast_id,
+            "title": self.title,
+            "author_id": self.author_id,
+        }
+
+    def matches_title(self, query: str) -> bool:
+        """Проверить, совпадает ли название с поисковым запросом."""
+        return query.strip().lower() in self.title.lower()
+
+    def __str__(self) -> str:
+        author_info = f", author_id={self.author_id}" if self.author_id else ""
+        return f"Podcast(id={self.podcast_id}, title='{self.title}'{author_info})"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Podcast):
             return False
-    # Генерация нового ID (максимальный существующий + 1)
-    new_id = max((p["id"] for p in podcasts), default=0) + 1
-    podcasts.append({"id": new_id, "title": title})
-    print(f"Подкаст '{title}' успешно добавлен (ID: {new_id}).")
-    return True
-
-
-def find_podcast_by_id(podcasts: List[Dict],
-                       podcast_id: int) -> Optional[Dict]:
-    for p in podcasts:
-        if p["id"] == podcast_id:
-            return p
-    return None
-
-
-def get_all_podcasts(podcasts: List[Dict]) -> List[Dict]:
-    return podcasts
+        return (
+            self.podcast_id == other.podcast_id
+            and self.title.lower() == other.title.lower()
+        )
