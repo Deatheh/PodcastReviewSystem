@@ -1,14 +1,17 @@
 [
     {
-        "id": 1,
-        "title": "Podcast 1"
+        "podcast_id": 1,
+        "title": "Podcast 1",
+        "author_id": null
     },
     {
-        "id": 2,
-        "title": "Podcast 2"
+        "podcast_id": 2,
+        "title": "Podcast 2",
+        "author_id": null
     },
     {
-        "id": 3,
-        "title": "Первый"
+        "podcast_id": 3,
+        "title": "Первый",
+        "author_id": null
     }
 ]
