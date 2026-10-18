@@ -1,0 +1,18 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.podcast-card, .review-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.podcast-card:hover, .review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}

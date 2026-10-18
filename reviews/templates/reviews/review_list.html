@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Список отзывов – PodcastReview{% endblock %}
+
+{% block content %}
+<h1>Отзывы</h1>
+<p class="lead">Всего отзывов: {{ reviews|length }}</p>
+
+{% if reviews %}
+    <div class="list-group">
+        {% for review in reviews %}
+            {% include "reviews/includes/review_card.html" %}
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-warning">Отзывы не найдены.</div>
+{% endif %}
+{% endblock %}

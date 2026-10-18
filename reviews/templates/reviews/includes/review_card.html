@@ -1,0 +1,9 @@
+<article class="card mb-3 review-card">
+    <div class="card-body">
+        <h5 class="card-title">Отзыв №{{ review.review_id }}</h5>
+        <p class="card-text"><small class="text-muted">Подкаст ID: {{ review.podcast_id }}, Пользователь ID: {{ review.user_id }}</small></p>
+        <a href="{% url 'reviews:review_detail' review.review_id %}" class="btn btn-sm btn-outline-primary">
+            Подробнее
+        </a>
+    </div>
+</article>

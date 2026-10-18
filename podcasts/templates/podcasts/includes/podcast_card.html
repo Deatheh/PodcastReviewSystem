@@ -1,0 +1,9 @@
+<article class="card mb-3 podcast-card">
+    <div class="card-body">
+        <h5 class="card-title">{{ podcast.title|default:"Без названия" }}</h5>
+        <p class="card-text"><small class="text-muted">ID: {{ podcast.podcast_id }}</small></p>
+        <a href="{% url 'podcasts:podcast_detail' podcast.podcast_id %}" class="btn btn-sm btn-outline-primary">
+            Подробнее
+        </a>
+    </div>
+</article>
