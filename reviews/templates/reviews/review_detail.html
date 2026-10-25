@@ -1,25 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}
-    {% if review %}Отзыв №{{ review.review_id }} – PodcastReview{% else %}Отзыв не найден – PodcastReview{% endif %}
-{% endblock %}
-
 {% block content %}
-{% if review %}
-    <div class="card">
-        <div class="card-body">
-            <h1 class="card-title">Отзыв №{{ review.review_id }}</h1>
-            <p class="card-text"><strong>Подкаст ID:</strong> {{ review.podcast_id }}</p>
-            <p class="card-text"><strong>Пользователь ID:</strong> {{ review.user_id }}</p>
-            <p class="card-text"><strong>Текст:</strong> {{ review.text }}</p>
-            <a href="{% url 'reviews:reviews_list' %}" class="btn btn-outline-secondary mt-3">← к списку отзывов</a>
-        </div>
-    </div>
-{% else %}
-    <div class="text-center py-5">
-        <h1 class="text-danger">Отзыв не найден</h1>
-        <p>Отзыв с указанным идентификатором не существует.</p>
-        <a href="{% url 'reviews:reviews_list' %}" class="btn btn-outline-secondary">← к списку отзывов</a>
-    </div>
-{% endif %}
+<h1>Отзыв #{{ review.id }}</h1>
+<p><strong>Подкаст:</strong> {{ review.podcast_title }}</p>
+<p><strong>Автор:</strong> {{ review.username }}</p>
+<p><strong>Оценка:</strong> {{ review.rating|default:"Не указана" }}</p>
+<p><strong>Текст:</strong> {{ review.text }}</p>
 {% endblock %}

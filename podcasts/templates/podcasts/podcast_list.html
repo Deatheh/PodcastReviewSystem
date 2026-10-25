@@ -1,18 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Список подкастов – PodcastReview{% endblock %}
-
 {% block content %}
-<h1>Подкасты</h1>
-<p class="lead">Всего подкастов: {{ podcasts|length }}</p>
-
-{% if podcasts %}
-    <div class="list-group">
-        {% for podcast in podcasts %}
-            {% include "podcasts/includes/podcast_card.html" %}
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="alert alert-warning">Подкасты не найдены.</div>
-{% endif %}
+<h1>Список подкастов</h1>
+<ul>
+{% for p in podcasts %}
+    <li><a href="{% url 'podcasts:detail' p.id %}">{{ p.title }}</a></li>
+{% empty %}
+    <li>Подкастов пока нет.</li>
+{% endfor %}
+</ul>
 {% endblock %}

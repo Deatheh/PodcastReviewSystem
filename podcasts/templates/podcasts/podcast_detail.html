@@ -1,24 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}
-    {% if podcast %}{{ podcast.title }} – PodcastReview{% else %}Подкаст не найден – PodcastReview{% endif %}
-{% endblock %}
-
 {% block content %}
-{% if podcast %}
-    <div class="card">
-        <div class="card-body">
-            <h1 class="card-title">{{ podcast.title }}</h1>
-            <p class="card-text"><strong>ID:</strong> {{ podcast.podcast_id }}</p>
-            <p class="card-text"><strong>Автор ID:</strong> {{ podcast.author_id|default:"не указан" }}</p>
-            <a href="{% url 'podcasts:podcasts_list' %}" class="btn btn-outline-secondary mt-3">← к списку подкастов</a>
-        </div>
-    </div>
-{% else %}
-    <div class="text-center py-5">
-        <h1 class="text-danger">Подкаст не найден</h1>
-        <p>Подкаст с указанным идентификатором не существует.</p>
-        <a href="{% url 'podcasts:podcasts_list' %}" class="btn btn-outline-secondary">← к списку подкастов</a>
-    </div>
-{% endif %}
+<h1>{{ podcast.title }}</h1>
+<h3>Отзывы:</h3>
+<ul>
+{% for r in reviews %}
+    <li>{{ r.username }} (Оценка: {{ r.rating|default:"-" }}): {{ r.text }}</li>
+{% empty %}
+    <li>Отзывов нет.</li>
+{% endfor %}
+</ul>
 {% endblock %}

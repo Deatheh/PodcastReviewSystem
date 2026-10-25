@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Статистика по подкастам</h1>
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Подкаст</th>
+            <th>Кол-во отзывов</th>
+            <th>Средняя оценка</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in stats %}
+        <tr>
+            <td>{{ item.podcast_title }}</td>
+            <td>{{ item.reviews_count }}</td>
+            <td>{{ item.avg_rating|floatformat:1|default:"-" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

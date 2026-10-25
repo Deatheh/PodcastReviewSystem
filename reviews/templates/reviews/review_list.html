@@ -1,18 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Список отзывов – PodcastReview{% endblock %}
-
 {% block content %}
-<h1>Отзывы</h1>
-<p class="lead">Всего отзывов: {{ reviews|length }}</p>
-
-{% if reviews %}
-    <div class="list-group">
-        {% for review in reviews %}
-            {% include "reviews/includes/review_card.html" %}
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="alert alert-warning">Отзывы не найдены.</div>
-{% endif %}
+<h1>Все отзывы</h1>
+<ul>
+{% for r in reviews %}
+    <li>
+        <a href="{% url 'reviews:detail' r.id %}">Отзыв #{{ r.id }}</a>
+        к подкасту "{{ r.podcast_title }}" от {{ r.username }}
+        {% if r.rating %}(Оценка: {{ r.rating }}){% endif %}
+    </li>
+{% empty %}
+    <li>Отзывов пока нет.</li>
+{% endfor %}
+</ul>
 {% endblock %}
