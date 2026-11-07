@@ -1,16 +1,95 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Все отзывы</h1>
-<ul>
-{% for r in reviews %}
-    <li>
-        <a href="{% url 'reviews:detail' r.id %}">Отзыв #{{ r.id }}</a>
-        к подкасту "{{ r.podcast_title }}" от {{ r.username }}
-        {% if r.rating %}(Оценка: {{ r.rating }}){% endif %}
-    </li>
+<h1 class="mb-4">Все отзывы</h1>
+
+<!-- Форма фильтрации -->
+<form method="get" action="{% url 'reviews:list' %}" class="row g-3 mb-4">
+  <div class="col-md-2">
+    <label class="form-label">Оценка</label>
+    <!-- Добавлено onchange -->
+    <select name="rating" class="form-select" onchange="this.form.submit()">
+      <option value="">Все</option>
+      {% for r in "12345"|make_list %}
+        <option value="{{ r }}" {% if selected_rating == r|stringformat:"s" %}selected{% endif %}>{{ r }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Подкаст</label>
+    <!-- Добавлено onchange -->
+    <select name="podcast" class="form-select" onchange="this.form.submit()">
+      <option value="">Все</option>
+      {% for p in podcasts %}
+        <option value="{{ p.pk }}" {% if selected_podcast == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.title }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Пользователь</label>
+    <!-- Добавлено onchange -->
+    <select name="user" class="form-select" onchange="this.form.submit()">
+      <option value="">Все</option>
+      {% for u in users %}
+        <option value="{{ u.pk }}" {% if selected_user == u.pk|stringformat:"s" %}selected{% endif %}>{{ u.username }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Сортировка</label>
+    <!-- Добавлено onchange -->
+    <select name="sort" class="form-select" onchange="this.form.submit()">
+      <option value="-created_at" {% if sort == "-created_at" %}selected{% endif %}>Новые</option>
+      <option value="created_at" {% if sort == "created_at" %}selected{% endif %}>Старые</option>
+      <option value="rating" {% if sort == "rating" %}selected{% endif %}>Оценка ↑</option>
+      <option value="-rating" {% if sort == "-rating" %}selected{% endif %}>Оценка ↓</option>
+      <option value="podcast" {% if sort == "podcast" %}selected{% endif %}>По подкасту</option>
+      <option value="user" {% if sort == "user" %}selected{% endif %}>По юзеру</option>
+    </select>
+  </div>
+  <div class="col-md-2 d-flex align-items-end">
+    <button type="submit" class="btn btn-primary me-2">Фильтр</button>
+    <a href="{% url 'reviews:list' %}" class="btn btn-outline-secondary">Сброс</a>
+  </div>
+</form>
+
+<!-- Список -->
+{% for review in reviews %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">
+        <a href="{% url 'podcasts:detail' review.podcast.pk %}">{{ review.podcast.title }}</a>
+      </h5>
+      <h6 class="card-subtitle mb-2 text-muted">
+        {{ review.user.username }} |
+        {% if review.rating %}Оценка: {{ review.rating }}/5{% else %}Без оценки{% endif %}
+      </h6>
+      <p class="card-text">{{ review.text }}</p>
+      <a href="{% url 'reviews:detail' review.pk %}" class="btn btn-sm btn-outline-primary">Читать отзыв</a>
+    </div>
+  </div>
 {% empty %}
-    <li>Отзывов пока нет.</li>
+  <p>Отзывов не найдено.</p>
 {% endfor %}
-</ul>
+
+<!-- Пагинация -->
+{% if page_obj.paginator.num_pages > 1 %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_rating %}&rating={{ selected_rating }}{% endif %}{% if selected_podcast %}&podcast={{ selected_podcast }}{% endif %}{% if selected_user %}&user={{ selected_user }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Назад</a>
+      </li>
+    {% endif %}
+
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_rating %}&rating={{ selected_rating }}{% endif %}{% if selected_podcast %}&podcast={{ selected_podcast }}{% endif %}{% if selected_user %}&user={{ selected_user }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Вперед</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
 {% endblock %}

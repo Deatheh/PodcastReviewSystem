@@ -1,9 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Отзыв #{{ review.id }}</h1>
-<p><strong>Подкаст:</strong> {{ review.podcast_title }}</p>
-<p><strong>Автор:</strong> {{ review.username }}</p>
-<p><strong>Оценка:</strong> {{ review.rating|default:"Не указана" }}</p>
-<p><strong>Текст:</strong> {{ review.text }}</p>
+<div class="mb-4">
+  <a href="{% url 'reviews:list' %}" class="btn btn-outline-secondary btn-sm mb-3">← Назад к отзывам</a>
+  <h1>Отзыв к подкасту "{{ review.podcast.title }}"</h1>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Пользователь: <b>{{ review.user.username }}</b></span>
+    <span class="badge bg-primary fs-6">
+      {% if review.rating %}{{ review.rating }}/5{% else %}Без оценки{% endif %}
+    </span>
+  </div>
+  <div class="card-body">
+    <p class="card-text fs-5">{{ review.text }}</p>
+    <p class="text-muted small mt-3 mb-0">
+      Дата создания: {{ review.created_at|date:"d.m.Y H:i" }}
+    </p>
+  </div>
+</div>
 {% endblock %}

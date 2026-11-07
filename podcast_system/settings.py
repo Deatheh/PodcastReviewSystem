@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "homepage",
     "podcasts",
     "reviews",
+    "users",
 ]
 
 MIDDLEWARE = [

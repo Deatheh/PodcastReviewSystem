@@ -1,52 +1,78 @@
-import sqlite3
-from django.shortcuts import render
+from django.core.paginator import Paginator
+from django.db.models import Avg, Count, Q
+from django.shortcuts import get_object_or_404, render
 
-DB_PATH = "data/podcast_system.sqlite"
-
+from .models import Review
+from podcasts.models import Podcast
+from users.models import User
 
 def reviews_list(request):
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    reviews = conn.execute(
-        "SELECT r.id, r.text, r.rating, p.title AS podcast_title, u.username "
-        "FROM reviews r "
-        "JOIN podcasts p ON r.podcast_id = p.id "
-        "JOIN users u ON r.user_id = u.id "
-        "ORDER BY r.id;"
-    ).fetchall()
-    conn.close()
-    return render(request, "reviews/review_list.html", {"reviews": reviews})
+    """Список отзывов с фильтрацией, сортировкой и пагинацией."""
+    reviews_qs = Review.objects.select_related("podcast", "user").all()
 
+    # 1. Фильтрация
+    rating = request.GET.get("rating", "").strip()
+    podcast_id = request.GET.get("podcast", "").strip()
+    user_id = request.GET.get("user", "").strip()
+
+    if rating.isdigit():
+        reviews_qs = reviews_qs.filter(rating=int(rating))
+    if podcast_id.isdigit():
+        reviews_qs = reviews_qs.filter(podcast_id=int(podcast_id))
+    if user_id.isdigit():
+        reviews_qs = reviews_qs.filter(user_id=int(user_id))
+
+    # 2. Сортировка
+    sort = request.GET.get("sort", "-created_at")
+    allowed_sort = {
+        "-created_at": "-created_at",
+        "created_at": "created_at",
+        "-rating": "-rating",
+        "rating": "rating",
+        "podcast": "podcast__title",
+        "user": "user__username",
+    }
+    sort_field = allowed_sort.get(sort, "-created_at")
+    reviews_qs = reviews_qs.order_by(sort_field, "pk")
+
+    # 3. Пагинация (по 5 записей на страницу)
+    paginator = Paginator(reviews_qs, 5)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    context = {
+        "page_obj": page_obj,
+        "reviews": page_obj,
+        "podcasts": Podcast.objects.order_by("title"),
+        "users": User.objects.order_by("username"),
+        "selected_rating": rating,
+        "selected_podcast": podcast_id,
+        "selected_user": user_id,
+        "sort": sort,
+    }
+    return render(request, "reviews/review_list.html", context)
 
 def review_detail(request, review_id):
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    review = conn.execute(
-        "SELECT r.id, r.text, r.rating, p.title AS podcast_title, u.username "
-        "FROM reviews r "
-        "JOIN podcasts p ON r.podcast_id = p.id "
-        "JOIN users u ON r.user_id = u.id "
-        "WHERE r.id = ?;",
-        (review_id,),
-    ).fetchone()
-    conn.close()
-
-    if review is None:
-        from homepage.views import page_not_found
-        return page_not_found(request, exception=None)
-
+    """Детальная страница отзыва."""
+    review = get_object_or_404(
+        Review.objects.select_related("podcast", "user"),
+        pk=review_id,
+    )
     return render(request, "reviews/review_detail.html", {"review": review})
 
-
 def statistics(request):
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    stats = conn.execute(
-        "SELECT p.title AS podcast_title, COUNT(r.id) AS reviews_count, AVG(r.rating) AS avg_rating "
-        "FROM podcasts p "
-        "LEFT JOIN reviews r ON p.id = r.podcast_id "
-        "GROUP BY p.id, p.title "
-        "ORDER BY reviews_count DESC;"
-    ).fetchall()
-    conn.close()
-    return render(request, "reviews/statistics.html", {"stats": stats})
+    """Статистика: количество отзывов и средний рейтинг по подкастам."""
+    # Используем annotate для подсчета связанных объектов
+    stats = (
+        Podcast.objects.annotate(
+            reviews_count=Count("reviews"),
+            avg_rating=Avg("reviews__rating"),
+        )
+        .order_by("-reviews_count", "title")
+    )
+
+    context = {
+        "stats": stats,
+        "total_reviews": Review.objects.count(),
+        "total_podcasts": Podcast.objects.count(),
+    }
+    return render(request, "reviews/statistics.html", context)

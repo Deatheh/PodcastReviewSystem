@@ -1,12 +1,28 @@
 {% extends "base.html" %}
 
+{% block title %}Подкасты{% endblock %}
+
 {% block content %}
-<h1>Список подкастов</h1>
-<ul>
-{% for p in podcasts %}
-    <li><a href="{% url 'podcasts:detail' p.id %}">{{ p.title }}</a></li>
+<h1 class="mb-4">Подкасты</h1>
+
+<form method="get" action="{% url 'podcasts:search' %}" class="row g-3 mb-4">
+  <div class="col-auto">
+    <input type="text" name="q" class="form-control" placeholder="Поиск по названию" value="{{ request.GET.q }}">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary">Найти</button>
+  </div>
+</form>
+
+{% for podcast in podcasts %}
+  <article class="card mb-3">
+    <div class="card-body">
+      <h2 class="h5">
+        <a href="{% url 'podcasts:detail' podcast.pk %}">{{ podcast.title }}</a>
+      </h2>
+    </div>
+  </article>
 {% empty %}
-    <li>Подкастов пока нет.</li>
+  <p>Подкастов пока нет.</p>
 {% endfor %}
-</ul>
 {% endblock %}
