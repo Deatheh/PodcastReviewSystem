@@ -5,7 +5,7 @@ class User(models.Model):
     """Пользователь системы, оставляющий отзывы."""
 
     username = models.CharField(
-        max_length=150,
+        max_length=10,
         verbose_name="Имя пользователя",
     )
     email = models.EmailField(

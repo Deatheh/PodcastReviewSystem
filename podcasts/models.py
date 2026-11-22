@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.urls import reverse  # <-- Добавь этот импорт
 
 class Podcast(models.Model):
     """Подкаст, доступный для прослушивания и оценки."""
@@ -9,8 +9,8 @@ class Podcast(models.Model):
         verbose_name="Название подкаста",
     )
     author_id = models.PositiveIntegerField(
-        null=True,          # <-- разрешаем NULL в БД
-        blank=True,         # <-- разрешаем пустое значение в формах/админке
+        null=True,
+        blank=True,
         verbose_name="ID автора",
         help_text="Идентификатор автора из исходной базы (может отсутствовать)",
     )
@@ -22,3 +22,10 @@ class Podcast(models.Model):
 
     def __str__(self):
         return self.title
+
+    # <-- Добавь этот метод
+    def get_absolute_url(self):
+        """Возвращает URL детальной страницы подкаста."""
+        # Убедись, что в podcasts/urls.py маршрут называется 'detail'
+        # и принимает параметр podcast_id
+        return reverse('podcasts:detail', kwargs={'podcast_id': self.pk})

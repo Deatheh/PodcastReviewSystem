@@ -1,7 +1,21 @@
 from django.db import models
-
 from podcasts.models import Podcast
 from users.models import User
+
+# 1. Создаем кастомный QuerySet
+class ReviewQuerySet(models.QuerySet):
+    def with_rating(self):
+        """Возвращает только отзывы, где есть оценка."""
+        return self.filter(rating__isnull=False)
+
+    def without_rating(self):
+        """Возвращает отзывы без оценки."""
+        return self.filter(rating__isnull=True)
+
+
+# 2. Создаем менеджер на основе этого QuerySet
+class ReviewManager(models.Manager.from_queryset(ReviewQuerySet)):
+    pass
 
 
 class Review(models.Model):
@@ -35,11 +49,14 @@ class Review(models.Model):
         verbose_name="Дата создания",
     )
 
+    # 3. Подключаем наш кастомный менеджер
+    objects = ReviewManager()
+
     class Meta:
         ordering = ["-created_at", "pk"]
         verbose_name = "Отзыв"
         verbose_name_plural = "Отзывы"
 
     def __str__(self):
-        rating = f"{self.rating}/5" if self.rating is not None else "без оценки"
-        return f"{self.podcast.title} — {rating} ({self.user.username})"
+        rating_str = f"{self.rating}/5" if self.rating is not None else "без оценки"
+        return f"{self.podcast.title} — {rating_str} ({self.user.username})"
