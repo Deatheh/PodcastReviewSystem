@@ -1,23 +1,32 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Отзыв: {{ review.podcast.title }}{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-  <a href="{% url 'reviews:list' %}" class="btn btn-outline-secondary btn-sm mb-3">← Назад к отзывам</a>
-  <h1>Отзыв к подкасту "{{ review.podcast.title }}"</h1>
-</div>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="card-title">{{ review.podcast.title }}</h2>
+        <h6 class="card-subtitle mb-3 text-muted">Автор: {{ review.user.username }} | Дата: {{ review.created_at|date:"d.m.Y H:i" }}</h6>
 
-<div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <span>Пользователь: <b>{{ review.user.username }}</b></span>
-    <span class="badge bg-primary fs-6">
-      {% if review.rating %}{{ review.rating }}/5{% else %}Без оценки{% endif %}
-    </span>
-  </div>
-  <div class="card-body">
-    <p class="card-text fs-5">{{ review.text }}</p>
-    <p class="text-muted small mt-3 mb-0">
-      Дата создания: {{ review.created_at|date:"d.m.Y H:i" }}
-    </p>
-  </div>
+        {% if review.rating %}
+            <span class="badge bg-warning text-dark mb-3">Оценка: {{ review.rating }}/5</span>
+        {% else %}
+            <span class="badge bg-secondary mb-3">Без оценки</span>
+        {% endif %}
+
+        <p class="card-text lead">{{ review.text }}</p>
+
+        <hr>
+        <div class="d-flex gap-2">
+            <a href="{% url 'reviews:list' %}" class="btn btn-secondary">← Назад к списку</a>
+            <a href="{% url 'reviews:update' review.id %}" class="btn btn-warning">Редактировать</a>
+
+            <!-- Форма удаления (ТОЛЬКО POST-запрос для безопасности) -->
+            <form method="post" action="{% url 'reviews:delete' review.id %}" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите удалить этот отзыв?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Удалить</button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

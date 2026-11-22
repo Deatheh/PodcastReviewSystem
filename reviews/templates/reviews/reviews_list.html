@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Список отзывов{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Отзывы о подкастах</h2>
+
+<a href="{% url 'reviews:create' %}" class="btn btn-success mb-4">Написать новый отзыв</a>
+
+<form method="get" class="row g-3 mb-4 p-3 bg-light rounded">
+    <div class="col-md-4">
+        {{ filter_form.podcast.label_tag }}
+        {{ filter_form.podcast }}
+    </div>
+    <div class="col-md-3">
+        {{ filter_form.min_rating.label_tag }}
+        {{ filter_form.min_rating }}
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Применить</button>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <a href="{% url 'reviews:list' %}" class="btn btn-outline-secondary w-100">Сбросить</a>
+    </div>
+</form>
+
+{% if reviews %}
+    <div class="list-group">
+        {% for review in reviews %}
+            <div class="list-group-item list-group-item-action mb-3 shadow-sm">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">
+                        <a href="{% url 'reviews:detail' review.id %}" class="text-decoration-none">
+                            {{ review.podcast.title }}
+                        </a>
+                    </h5>
+                    <small class="text-muted">{{ review.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+                <p class="mb-1">{{ review.text|truncatewords:30 }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Автор: {{ review.user.username }}</small>
+                    {% if review.rating %}
+                        <span class="badge bg-warning text-dark">Оценка: {{ review.rating }}/5</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Без оценки</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1">&laquo; Первая</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперед</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="alert alert-info">Отзывов пока нет. Будьте первым!</div>
+{% endif %}
+{% endblock %}

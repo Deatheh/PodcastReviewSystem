@@ -1,5 +1,4 @@
 from django.db import models
-from django.urls import reverse  # <-- Добавь этот импорт
 
 class Podcast(models.Model):
     """Подкаст, доступный для прослушивания и оценки."""
@@ -14,6 +13,13 @@ class Podcast(models.Model):
         verbose_name="ID автора",
         help_text="Идентификатор автора из исходной базы (может отсутствовать)",
     )
+    # <-- НОВОЕ ПОЛЕ ДЛЯ ПР11
+    cover_image = models.ImageField(
+        upload_to="podcast_covers/",
+        blank=True,
+        null=True,
+        verbose_name="Обложка подкаста",
+    )
 
     class Meta:
         ordering = ["title"]
@@ -23,9 +29,6 @@ class Podcast(models.Model):
     def __str__(self):
         return self.title
 
-    # <-- Добавь этот метод
     def get_absolute_url(self):
-        """Возвращает URL детальной страницы подкаста."""
-        # Убедись, что в podcasts/urls.py маршрут называется 'detail'
-        # и принимает параметр podcast_id
+        from django.urls import reverse
         return reverse('podcasts:detail', kwargs={'podcast_id': self.pk})

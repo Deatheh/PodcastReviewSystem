@@ -1,37 +1,64 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}Статистика отзывов{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Статистика отзывов</h1>
+<h2 class="mb-4">Статистика отзывов</h2>
 
-<p>Всего подкастов: <strong>{{ total_podcasts }}</strong>.
-   Всего отзывов: <strong>{{ total_reviews }}</strong>.</p>
+<!-- Общие показатели -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">{{ overall.total_reviews }}</h3>
+                <p class="card-text text-muted mb-0">Всего отзывов</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">{{ overall.with_rating }}</h3>
+                <p class="card-text text-muted mb-0">С оценкой</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">{{ overall.without_rating }}</h3>
+                <p class="card-text text-muted mb-0">Без оценки</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Подкаст</th>
-      <th>Количество отзывов</th>
-      <th>Средний рейтинг</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in stats %}
-      <tr>
-        <td>{{ item.title }}</td>
-        <td>{{ item.reviews_count }}</td>
-        <td>
-          {% if item.avg_rating %}
-            {{ item.avg_rating|floatformat:1 }}
-          {% else %}
-            —
-          {% endif %}
-        </td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="3">Подкастов пока нет.</td></tr>
-    {% endfor %}
-  </tbody>
+<!-- Разбивка по подкастам -->
+<h4 class="mb-3">По подкастам</h4>
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Подкаст</th>
+            <th>Отзывов</th>
+            <th>Средняя оценка</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in podcast_stats %}
+            <tr>
+                <td><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></td>
+                <td>{{ item.reviews_count }}</td>
+                <td>
+                    {% if item.avg_rating %}
+                        <span class="badge bg-warning text-dark">{{ item.avg_rating|floatformat:2 }}/5</span>
+                    {% else %}
+                        <span class="text-muted">оценок нет</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="3">Подкасты пока не добавлены.</td></tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock %}
